@@ -36,35 +36,30 @@ export default {
 
     isBalanced() {
       const open_stack = []
-      const close_stack = []
+      const close_stack = ')}]'
       const open_brackets = '({['
-      const close_brackets = ')}]'
       const mapping_brackets_close = {
         ')': '(',
         '}': '{',
         ']': '[',
       };
-
       // convert text to array and loop over all to exclude  open_brackets and close_brackets character
       [...this.text].forEach((char) => {
-        if (open_brackets.includes(char))
+        if (open_brackets.includes(char)) {
           open_stack.push(char) // ex: ['(','[']
-
-        else if (close_brackets.includes(char))
-          close_stack.unshift(char) // ex: [']','}']
+        }
+        else if (close_stack.includes(char)) {
+          // then check in these condition
+          // level not matches in any case , return to no calculate more like: {test[test]
+          if (open_stack.length === 0 || open_stack.pop() !== mapping_brackets_close[char]) {
+            this.strIsBalance = false
+            return;
+          }
+        }
       })
-
-      // then check in these condition
-      // first: level not matches in any case , return to no calculate more like: {test[test]
-      if (open_stack.length !== close_stack.length)
-        this.strIsBalance = false
-
-      // then: level is matched but priorities not the same like: {test[test}]
-      else if (!open_stack.every((open_symbol, i) => open_symbol === mapping_brackets_close[close_stack[i]]))
-        this.strIsBalance = false
-
+      // level not matches in any case , return to no calculate more like: test[test](
       // otherwise: all good :)
-      else this.strIsBalance = true
+      this.strIsBalance = open_stack.length === 0
     },
   },
 }
