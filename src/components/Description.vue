@@ -32,27 +32,39 @@ export default {
   methods: {
     handleInput: debounce(function () {
       this.isBalanced()
-    }, 200), // Adjust the debounce delay as needed
+    }, 300), // Adjust the debounce delay as needed with or without consider test cases
 
     isBalanced() {
-      const stack = []
-      const matchingBrackets = {
+      const open_stack = []
+      const close_stack = []
+      const open_brackets = '({['
+      const close_brackets = ')}]'
+      const mapping_brackets_close = {
         ')': '(',
         '}': '{',
         ']': '[',
-      }
-      // check the whole string and return the proper message
-      for (const char of this.text) {
-        if (char === '(' || char === '[' || char === '{') {
-          stack.push(char)
-        }
-        else if (char === ')' || char === ']' || char === '}') {
-          if (stack.length === 0 || stack.pop() !== matchingBrackets[char])
-            this.strIsBalance = false
-        }
-      }
+      };
 
-      this.strIsBalance = stack.length === 0
+      // convert text to array and loop over all to exclude  open_brackets and close_brackets character
+      [...this.text].forEach((char) => {
+        if (open_brackets.includes(char))
+          open_stack.push(char) // ex: ['(','[']
+
+        else if (close_brackets.includes(char))
+          close_stack.unshift(char) // ex: [']','}']
+      })
+
+      // then check in these condition
+      // first: level not matches in any case , return to no calculate more like: {test[test]
+      if (open_stack.length !== close_stack.length)
+        this.strIsBalance = false
+
+      // then: level is matched but priorities not the same like: {test[test}]
+      else if (!open_stack.every((open_symbol, i) => open_symbol === mapping_brackets_close[close_stack[i]]))
+        this.strIsBalance = false
+
+      // otherwise: all good :)
+      else this.strIsBalance = true
     },
   },
 }
